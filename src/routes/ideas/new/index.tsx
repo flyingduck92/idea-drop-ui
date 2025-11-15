@@ -30,6 +30,16 @@ function NewIdeaPage() {
       return
     }
 
+    console.log({
+      title,
+      summary,
+      description,
+      tags: tags
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter((tag) => tag !== ''),
+    })
+
     try {
       await mutateAsync({
         title,

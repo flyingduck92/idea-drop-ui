@@ -1,10 +1,16 @@
 import { fetchIdea, updateIdea } from '@/api/ideas'
+import NotFound from '@/components/NotFound'
 import {
   queryOptions,
   useMutation,
   useSuspenseQuery,
 } from '@tanstack/react-query'
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  useNavigate,
+  Link,
+  notFound,
+} from '@tanstack/react-router'
 import { useState } from 'react'
 
 const ideaQueryOptions = (id: string) =>
@@ -15,8 +21,17 @@ const ideaQueryOptions = (id: string) =>
 
 export const Route = createFileRoute('/ideas/$ideaId/edit')({
   component: IdeaEditPage,
+  notFoundComponent: NotFound,
   loader: async ({ params, context: { queryClient } }) => {
-    return queryClient.ensureQueryData(ideaQueryOptions(params.ideaId))
+    try {
+      const idea = await queryClient.ensureQueryData(
+        ideaQueryOptions(params.ideaId)
+      )
+      if (!idea) throw notFound()
+      return idea
+    } catch (error) {
+      throw notFound()
+    }
   },
 })
 

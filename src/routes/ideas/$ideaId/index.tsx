@@ -1,4 +1,5 @@
 import { deleteIdea, fetchIdea } from '@/api/ideas'
+import NotFound from '@/components/NotFound'
 import {
   queryOptions,
   useMutation,
@@ -8,7 +9,6 @@ import {
   createFileRoute,
   Link,
   notFound,
-  rootRouteId,
   useNavigate,
 } from '@tanstack/react-router'
 
@@ -20,13 +20,19 @@ const ideaQueryOptions = (ideaId: string) =>
 
 export const Route = createFileRoute('/ideas/$ideaId/')({
   component: IdeaDetailsPage,
+  notFoundComponent: NotFound,
   loader: async ({ params, context: { queryClient } }) => {
-    const idea = await queryClient.ensureQueryData(
-      ideaQueryOptions(params.ideaId)
-    )
+    try {
+      const idea = await queryClient.ensureQueryData(
+        ideaQueryOptions(params.ideaId)
+      )
 
-    if (!idea) throw notFound({ routeId: rootRouteId })
-    return idea
+      if (!idea) throw notFound()
+      return idea
+    } catch (error) {
+      // If fetchIdea throws an error (e.g., 404 from API), show NotFound page
+      throw notFound()
+    }
   },
 })
 
