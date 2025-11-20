@@ -1,4 +1,7 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useMutation } from '@tanstack/react-query'
+import { registerUser } from '@/api/auth'
+import { useAuth } from '@/context/authContext'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/(auth)/register/')({
@@ -6,15 +9,44 @@ export const Route = createFileRoute('/(auth)/register/')({
 })
 
 function RegisterPage() {
+  const navigate = useNavigate()
+  const { setAccessToken, setUser } = useAuth()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: registerUser,
+    onSuccess: (data) => {
+      setAccessToken(data.accessToken)
+      setUser(data.user)
+      navigate({ to: '/ideas' })
+    },
+    onError: (err: any) => {
+      setError(err.message)
+    },
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      await mutateAsync({ name, email, password })
+    } catch (err: any) {
+      console.log(err.message)
+    }
+  }
 
   return (
     <div className='max-w-md mx-auto'>
       <h1 className='text-3xl font-bold mb-6'>Register</h1>
+      {error && (
+        <div className='bg-red-100 text-red-700 px-4 py-2 rounded mb-4'>
+          {error}
+        </div>
+      )}
       <form
-        action=''
+        onSubmit={handleSubmit}
         className='space-y-4'
       >
         <input
@@ -41,8 +73,11 @@ function RegisterPage() {
           placeholder='Password'
           autoComplete='off'
         />
-        <button className='bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-md w-full'>
-          Register
+        <button
+          disabled={isPending}
+          className='bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-md w-full'
+        >
+          {isPending ? 'Registering...' : 'Register'}
         </button>
       </form>
 

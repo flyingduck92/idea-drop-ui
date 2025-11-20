@@ -8,3 +8,11 @@ export type Idea = {
 }
 
 export type NewIdea = Omit<Idea, '_id' | 'createdAt'>
+
+export type RegisterUserType = {
+  name: string
+  email: string
+  password: string
+}
+
+export type LoginUserType = Omit<RegisterUserType, 'name'>
