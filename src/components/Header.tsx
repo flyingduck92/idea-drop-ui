@@ -1,6 +1,5 @@
 import { logoutUser } from '@/api/auth'
 import { useAuth } from '@/context/authContext'
-import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Lightbulb } from 'lucide-react'
 
@@ -69,7 +68,7 @@ const Header = () => {
             </>
           ) : (
             <>
-              <span className='text-gray-700 font-medium px-2'>
+              <span className='hidden sm:block text-gray-700 font-medium px-2'>
                 Welcome {user.name}
               </span>
               <button
