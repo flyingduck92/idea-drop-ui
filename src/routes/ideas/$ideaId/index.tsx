@@ -1,5 +1,6 @@
 import { deleteIdea, fetchIdea } from '@/api/ideas'
 import NotFound from '@/components/NotFound'
+import { useAuth } from '@/context/authContext'
 import {
   queryOptions,
   useMutation,
@@ -39,6 +40,7 @@ export const Route = createFileRoute('/ideas/$ideaId/')({
 function IdeaDetailsPage() {
   const { ideaId } = Route.useParams()
   const { data: idea } = useSuspenseQuery(ideaQueryOptions(ideaId))
+  const { user } = useAuth()
 
   const navigate = useNavigate()
 
@@ -69,23 +71,27 @@ function IdeaDetailsPage() {
       <h2 className='text-2xl font-bold'>{idea.title}</h2>
       <p className='mt-2'>{idea.description}</p>
 
-      {/* Edit Link */}
-      <Link
-        to='/ideas/$ideaId/edit'
-        params={{ ideaId: idea._id }}
-        className='inline-block text-sm bg-yellow-500 hover:bg-yellow-600 text-white mt-4 mr-2 px-4 py-2 rounded transition'
-      >
-        Edit
-      </Link>
+      {user && user.id === idea.user && (
+        <>
+          {/* Edit Link */}
+          <Link
+            to='/ideas/$ideaId/edit'
+            params={{ ideaId: idea._id }}
+            className='inline-block text-sm bg-yellow-500 hover:bg-yellow-600 text-white mt-4 mr-2 px-4 py-2 rounded transition'
+          >
+            Edit
+          </Link>
 
-      {/* Delete Button */}
-      <button
-        disabled={isPending}
-        onClick={handleDelete}
-        className='text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 mt-4 px-4 py-2 rounded transition'
-      >
-        {isPending ? 'Deleting...' : 'Delete Idea'}
-      </button>
+          {/* Delete Button */}
+          <button
+            disabled={isPending}
+            onClick={handleDelete}
+            className='text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 mt-4 px-4 py-2 rounded transition'
+          >
+            {isPending ? 'Deleting...' : 'Delete Idea'}
+          </button>
+        </>
+      )}
     </div>
   )
 }

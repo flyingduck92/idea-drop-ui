@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { createIdea } from '@/api/ideas'
 import { useMutation } from '@tanstack/react-query'
+import { useAuth } from '@/context/authContext'
 
 export const Route = createFileRoute('/ideas/new/')({
   component: NewIdeaPage,
@@ -9,6 +10,7 @@ export const Route = createFileRoute('/ideas/new/')({
 
 function NewIdeaPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const [title, setTitle] = useState('')
   const [summary, setSummary] = useState('')
@@ -30,15 +32,15 @@ function NewIdeaPage() {
       return
     }
 
-    console.log({
-      title,
-      summary,
-      description,
-      tags: tags
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter((tag) => tag !== ''),
-    })
+    // console.log({
+    //   title,
+    //   summary,
+    //   description,
+    //   tags: tags
+    //     .split(',')
+    //     .map((tag) => tag.trim())
+    //     .filter((tag) => tag !== ''),
+    // })
 
     try {
       await mutateAsync({
@@ -49,6 +51,7 @@ function NewIdeaPage() {
           .split(',')
           .map((tag) => tag.trim())
           .filter((tag) => tag !== ''),
+        user: user!.id,
       })
     } catch (error) {
       console.error(error)

@@ -1,5 +1,6 @@
 import axios from 'axios'
-import { getStoredAccessToken } from './authToken'
+import { getStoredAccessToken, setStoredAccessToken } from './authToken'
+import { refreshAccessToken } from '@/api/auth'
 
 const api = axios.create({
   baseURL: '/api',
@@ -9,6 +10,7 @@ const api = axios.create({
   },
 })
 
+// attach token on refresh
 api.interceptors.request.use((config) => {
   const token = getStoredAccessToken()
   if (token) {
@@ -16,5 +18,32 @@ api.interceptors.request.use((config) => {
   }
   return config
 })
+
+// refresh token after expired
+api.interceptors.response.use(
+  (res) => res,
+  async (err) => {
+    const originalRequest = err.config
+
+    if (
+      err.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes('/auth/refresh')
+    ) {
+      originalRequest._retry = true
+
+      try {
+        const { accessToken: newToken } = await refreshAccessToken()
+        setStoredAccessToken(newToken)
+        originalRequest.headers.Authorization = `Bearer ${newToken}`
+        return api(originalRequest)
+      } catch (err) {
+        console.error('refresh token failed', err)
+      }
+    }
+
+    return Promise.reject(err)
+  }
+)
 
 export default api

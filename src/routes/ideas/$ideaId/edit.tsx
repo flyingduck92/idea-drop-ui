@@ -1,5 +1,6 @@
 import { fetchIdea, updateIdea } from '@/api/ideas'
 import NotFound from '@/components/NotFound'
+import { useAuth } from '@/context/authContext'
 import {
   queryOptions,
   useMutation,
@@ -37,6 +38,7 @@ export const Route = createFileRoute('/ideas/$ideaId/edit')({
 
 function IdeaEditPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const { ideaId } = Route.useParams()
   const { data: idea } = useSuspenseQuery(ideaQueryOptions(ideaId))
@@ -56,6 +58,7 @@ function IdeaEditPage() {
           .split(',')
           .map((tag) => tag.trim())
           .filter((tag) => tag !== ''),
+        user: user!.id,
       }),
     onSuccess: () => {
       navigate({ to: `/ideas/${ideaId}`, params: { ideaId } })

@@ -5,6 +5,7 @@ export type Idea = {
   description: string
   tags: string[]
   createdAt: string
+  user: string
 }
 
 export type NewIdea = Omit<Idea, '_id' | 'createdAt'>
