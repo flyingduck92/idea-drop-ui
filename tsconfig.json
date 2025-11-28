@@ -34,6 +34,6 @@
       ],
     },
     /* Fix for TS 6 warnings */
-    "ignoreDeprecations": "6.0"
+    // "ignoreDeprecations": "6.0"
   }
 }
